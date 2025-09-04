@@ -11,8 +11,9 @@ def make_client():
     if str(backend_root) not in sys.path:
         sys.path.insert(0, str(backend_root))
 
-    # Use a local SQLite DB for tests to avoid requiring Postgres
-    os.environ["DATABASE_URI"] = "sqlite+aiosqlite:///./test_aihub.db"
+    # Use a unique SQLite DB per test to avoid cross-test contamination
+    from uuid import uuid4
+    os.environ["DATABASE_URI"] = f"sqlite+aiosqlite:///./test_aihub_{uuid4().hex}.db"
     # Ensure OpenAI features are disabled during tests
     os.environ.pop("OPENAI_API_KEY", None)
 

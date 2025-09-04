@@ -26,6 +26,7 @@ import Header from './components/Header';
 import UserSettings from './components/UserSettings';
 import { LiveAPIProvider } from './contexts/LiveAPIContext';
 import { useUI, useUser } from './lib/state';
+import Dashboard from './components/dashboard/Dashboard';
 
 const API_KEY = process.env.GEMINI_API_KEY as string;
 if (typeof API_KEY !== 'string') {
@@ -48,6 +49,7 @@ function App() {
 
         {showUserConfig && <UserSettings />}
         {showAgentEdit && <AgentEdit />}
+        <Dashboard />
         <div className="streaming-console">
           <main>
             <div className="main-app-area">

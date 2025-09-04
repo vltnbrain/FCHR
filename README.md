@@ -26,6 +26,9 @@ npm run dev
 # Open http://localhost:5173
 ```
 
+Optional env for frontend
+- `VITE_API_BASE_URL` (default: `http://localhost:8000/api/v1`) used by Dashboard fetches.
+
 ### Backend (FastAPI)
 Local quick run (SQLite, no external services):
 ```bash

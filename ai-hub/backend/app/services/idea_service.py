@@ -232,7 +232,8 @@ class IdeaService:
             assignment = Assignment(
                 idea_id=idea_id,
                 developer_user_id=developer.id,
-                status="invited"
+                status="invited",
+                invited_at=func.now()
             )
             db.add(assignment)
 

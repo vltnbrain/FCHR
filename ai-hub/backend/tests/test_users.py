@@ -7,7 +7,8 @@ from fastapi.testclient import TestClient
 
 def make_client():
     # Use a local SQLite DB for tests to avoid requiring Postgres
-    os.environ["DATABASE_URI"] = "sqlite+aiosqlite:///./test_aihub.db"
+    from uuid import uuid4
+    os.environ["DATABASE_URI"] = f"sqlite+aiosqlite:///./test_aihub_{uuid4().hex}.db"
     os.environ.pop("OPENAI_API_KEY", None)
 
     backend_root = Path(__file__).resolve().parents[1]
@@ -65,4 +66,3 @@ def test_users_crud_flow():
         r = client.get(f"/api/v1/users/{finance['id']}")
         assert r.status_code == 200
         assert r.json()["email"] == "finance.one@example.com"
-

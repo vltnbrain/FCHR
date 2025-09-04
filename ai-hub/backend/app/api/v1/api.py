@@ -3,7 +3,7 @@ Main API router for AI Hub v1
 """
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import ideas, users, reviews, assignments, dashboard
+from app.api.v1.endpoints import ideas, users, reviews, assignments, dashboard, auth
 
 api_router = APIRouter()
 
@@ -13,3 +13,4 @@ api_router.include_router(users.router, prefix="/users", tags=["users"])
 api_router.include_router(reviews.router, prefix="/reviews", tags=["reviews"])
 api_router.include_router(assignments.router, prefix="/assignments", tags=["assignments"])
 api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
+api_router.include_router(auth.router, prefix="/auth", tags=["auth"])

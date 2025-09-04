@@ -1,13 +1,21 @@
 """
 Minimal security & RBAC utilities for MVP/testing.
+Prefers JWT Bearer role; falls back to `x-user-role` header for dev.
 """
-from typing import Iterable, Set
+from typing import Iterable, Set, Tuple
 from fastapi import Depends, Header, HTTPException, status
 
+from app.core.auth import get_role_from_auth
 
-async def get_current_role(x_user_role: str | None = Header(default=None)) -> str:
-    """Extract current role from header; default to 'developer' if absent."""
-    return (x_user_role or "developer").lower()
+
+async def get_current_role(
+    x_user_role: str | None = Header(default=None),
+    role_and_uid: Tuple[str | None, int | None] = Depends(get_role_from_auth),
+) -> str:
+    """Extract current role: prefer JWT, fallback to header; default 'developer'."""
+    jwt_role, _ = role_and_uid
+    role = jwt_role or x_user_role or "developer"
+    return role.lower()
 
 
 def require_roles(allowed: Iterable[str]):
@@ -18,4 +26,3 @@ def require_roles(allowed: Iterable[str]):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
 
     return _checker
-
