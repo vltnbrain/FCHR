@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  # PostgreSQL with pgvector extension
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: ai-hub-postgres
+    environment:
+      POSTGRES_DB: aihub
+      POSTGRES_USER: aihub
+      POSTGRES_PASSWORD: aihub123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aihub -d aihub"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for Celery and caching
+  redis:
+    image: redis:7-alpine
+    container_name: ai-hub-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MailHog for email testing in development
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: ai-hub-mailhog
+    ports:
+      - "1025:1025"  # SMTP server
+      - "8025:8025"  # Web interface
+    environment:
+      MH_STORAGE: maildir
+      MH_MAILDIR_PATH: /tmp
+
+  # Backend API service
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: ai-hub-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URI=postgresql://aihub:aihub123@postgres:5432/aihub
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - LOG_LEVEL=INFO
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ../backend:/app
+    command: uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Celery worker for background tasks
+  celery-worker:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: ai-hub-celery
+    environment:
+      - DATABASE_URI=postgresql://aihub:aihub123@postgres:5432/aihub
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - LOG_LEVEL=INFO
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ../backend:/app
+    command: celery -A app.worker worker --loglevel=info
+    healthcheck:
+      test: ["CMD", "celery", "-A", "app.worker", "inspect", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+  redis_data:

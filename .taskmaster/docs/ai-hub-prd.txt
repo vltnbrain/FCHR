@@ -1,0 +1,127 @@
+# AI Hub of Ideas & Tasks - Product Requirements Document
+
+## Overview
+Create a comprehensive web service called "AI Hub of Ideas & Tasks" that centralizes collection of user ideas and converts them into actionable tasks with role-based routing, deduplication, review loops, and a public dashboard. The system integrates with the existing FCHR voice assistant to capture ideas through natural conversation and routes them through a structured approval process.
+
+## High-level Objectives
+1) Create an AI Hub where any user can submit an idea (initially via existing voice assistant) and via web UI/API.
+2) Maintain an employees directory with full name, role (developer, analyst, finance, manager, superuser/admin), department, and email.
+3) Integrate/extend existing voice assistant (FCHR repo) to:
+   - Identify user by full name (map to existing user or create new one), infer role and department.
+   - Remind user where last interaction left off (how many days ago) and what follow-ups were needed.
+   - Auto-structure incoming ideas (category, required team, implementation readiness level).
+   - Detect duplicates (with similarity %) and suggest linking to existing ideas/tasks.
+   - Email or speak summaries/status to user on request.
+
+4) Routing & SLAs: Orchestrate email notifications and decisions:
+   - Forward each new idea to Analyst: assess usefulness; if >50% unique → treat as NEW; else → mark as IMPROVEMENT of existing idea.
+   - Then forward idea + analyst decision to Finance: assess usefulness and confirm/adjust department; expect response within 5 days via email/voice.
+   - Then notify Developers (potential implementers) to accept/commit; if no confirmation within 5 days, escalate to Superuser (Admin) with details.
+   - If implementers fail to confirm within 5 days, send idea to "task marketplace" queue.
+
+5) Provide dashboard visible to any user showing ideas, statuses, and full change history.
+
+6) Update voice assistant's "idea handling guide" in FCHR repo to align with this pipeline and terminology.
+
+## Technology Choices
+- Backend: Python FastAPI (for quick OpenAPI + background tasks)
+- DB: PostgreSQL for relational data & audit logs
+- Vector search for duplicate detection: pgvector (inside Postgres)
+- Email: SMTP (MailHog/Maildev in dev, SendGrid in prod)
+- Job scheduling/SLA timers: Celery/RQ (Python)
+- Auth: JWT/OIDC; RBAC roles (developer, analyst, finance, manager, admin)
+- Frontend: React + TypeScript + Tailwind + Vite
+
+## Data Model
+- users (id, full_name, email, role [enum], department, created_at, last_contact_at)
+- ideas (id, title, raw_input, structured_summary, category, required_team, readiness_level, author_user_id, status [enum], similarity_parent_id, similarity_score, created_at, updated_at)
+- reviews (id, idea_id, reviewer_user_id, stage [analyst|finance], decision [accepted|rejected|needs_info], notes, recommended_department, decided_at)
+- assignments (id, idea_id, developer_user_id, status [invited|accepted|declined|no_response], invited_at, responded_at)
+- tasks_marketplace (id, idea_id, listed_at, notes)
+- events_audit (id, entity_type, entity_id, action, actor_user_id, payload_json, created_at)
+- email_queue (id, to_email, subject, body, status, sent_at, provider_message_id)
+- embeddings (entity_type, entity_id, vector, model, created_at) with pgvector index
+
+## Key Workflows
+1) Ingestion (voice or web): Resolve/attach user; create idea; compute embedding; search vector index for near duplicates; store similarity.
+2) Analyst review (SLA 5 days): Email analyst with summary + "Assess" link; start timer; persist decision.
+3) Finance review (SLA 5 days): Email finance with analyst decision; persist decision and department confirmation.
+4) Developer confirmation (SLA 5 days): Notify developers; collect accept/decline; escalate after 5 days.
+5) Escalations: Daily job checks timers; send escalation email to admin.
+6) Reminders in voice assistant: When known user reconnects, compute days_since_last_interaction, summarize pending actions.
+
+## APIs (OpenAPI)
+- POST /ideas (accepts raw input; returns idea with structure & similarity results)
+- GET /ideas/:id, GET /ideas?status=, GET /ideas/:id/history
+- POST /ideas/:id/route/analyst, POST /ideas/:id/route/finance, POST /ideas/:id/route/developers
+- POST /reviews (analyst/finance decisions)
+- POST /assignments (developer accept/decline)
+- POST /webhooks/email (ingest replies from email provider)
+- GET /dashboard (paged list; filter by status/owner/department)
+- GET /users/:id and POST /users (create on the fly from voice)
+
+## Dashboard Requirements
+- Public list of ideas (ID, title, author, status, similarity link, last update, badges for SLA timers)
+- Idea detail page: structured fields, duplicates/improvements, review decisions, email/voice history, audit trail
+- Role-based actions: analyst assess, finance assess, developer accept/decline, admin override/escalate
+
+## Voice Assistant Integration
+- Add/modify idea-handling-guide.md in FCHR repo /docs/
+- Outlines conversation steps: identify user → recap last interaction → capture idea → structure fields → check duplicates → inform status → route to analyst/finance/developers → summarize and confirm email delivery
+- Includes example prompts/intents and slot extraction schema
+- Documents API endpoints the bot should call and response payloads
+- Provide adapter in /integrations/fchr-voice-bot demonstrating auth, POST /ideas from transcribed text, GET recent status for user, templated responses for duplicates
+
+## Email & Timers
+- Implement provider-agnostic email interface with pluggable SMTP
+- Implement scheduler/worker that enqueues analyst→finance→developer messages, tracks 5-day SLAs and emits escalation events, writes everything into events_audit
+
+## Security & Compliance
+- RBAC middleware; audit all state transitions
+- PII scoped to minimum fields; allow admin export/delete of user's data
+- Rate limiting on public endpoints
+
+## Testing & QA
+- Seed script with sample users (all roles) and sample ideas (including duplicates)
+- Tests for: dedup thresholding, SLA timers, escalation emails, state transitions, role permissions
+
+## Deliverables
+- EPIC "AI Hub of Ideas & Tasks" with user stories and acceptance criteria
+- Work-breakdown into milestones and tasks with estimates and dependencies
+- System design doc (README or docs/system-design.md) covering architecture, data model, API contract, state machine, security
+- Monorepo scaffold with /backend, /frontend, /infra, /integrations/fchr-voice-bot, /docs, /scripts
+- Automated tests for core flows
+- .env.example with all required env vars
+- Makefile or npm/yarn/pnpm scripts to run dev stack end-to-end locally
+
+## Acceptance Criteria
+- Local docker compose up starts DB, vector store, backend, worker, maildev, frontend
+- Creating idea (via REST or stub call from voice adapter) triggers auto-structuring + embedding + duplicate check + analyst email queued with 5-day SLA
+- Updating analyst and finance decisions changes status correctly
+- Developer invitation flow runs and escalates after 5 days
+- Dashboard lists ideas, shows statuses and history
+- Voice guide present in /docs/idea-handling-guide.md and endpoints callable from bot adapter
+
+## Development Roadmap
+1. Foundation: Project structure, database setup, authentication
+2. Idea Ingestion: API endpoints, duplicate detection, voice integration
+3. Review Workflow: Email system, analyst/finance reviews, SLA timers
+4. Assignment System: Developer invitations, escalations, marketplace
+5. Dashboard: Frontend components, role-based UI, public access
+6. Voice Enhancement: FCHR integration, conversation flows, status updates
+7. Production: Testing, deployment, monitoring
+
+## Logical Dependency Chain
+- Database and authentication must be complete before any API development
+- Idea ingestion APIs needed before review workflow
+- Review workflow must be working before assignment system
+- Frontend can be developed in parallel with backend APIs
+- Voice integration depends on backend APIs being available
+- Testing and production deployment come last
+
+## Risks and Mitigations
+- API key management: Use environment variables and proper secret management
+- SLA timer accuracy: Implement robust job scheduling with Redis/Celery
+- Duplicate detection performance: Optimize vector search with proper indexing
+- Email deliverability: Use reputable providers with proper authentication
+- Voice assistant integration: Create comprehensive API documentation and test adapters
