@@ -28,6 +28,8 @@ import { LiveAPIProvider } from './contexts/LiveAPIContext';
 import { useUI, useUser } from './lib/state';
 import Dashboard from './components/dashboard/Dashboard';
 import IdeaSubmit from './components/ideas/IdeaSubmit';
+import Invitations from './components/assignments/Invitations';
+import Marketplace from './components/assignments/Marketplace';
 
 // Resolve Gemini API key from Vite env or process.env (dev/server)
 const API_KEY = (import.meta as any).env?.VITE_GEMINI_API_KEY ?? (typeof process !== 'undefined' ? (process.env as any)?.GEMINI_API_KEY : undefined);
@@ -46,6 +48,8 @@ function App() {
       {showUserConfig && <UserSettings />}
       {showAgentEdit && <AgentEdit />}
       <IdeaSubmit />
+      <Invitations />
+      <Marketplace />
       <Dashboard />
 
       {HAS_LIVE_API ? (

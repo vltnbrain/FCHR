@@ -5,10 +5,10 @@ from datetime import datetime, timedelta, timezone
 from typing import Dict
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, update
 
 from app.core.config import settings
-from app.models import Idea, IdeaStatus, Assignment, User, UserRole
+from app.models import Idea, IdeaStatus, Assignment, User, UserRole, MarketplaceEntry
 from app.services.email_service import EmailService
 
 
@@ -35,6 +35,24 @@ class SLAService:
             and_(Assignment.status == "invited", Assignment.invited_at < dev_cutoff)
         ))).scalars().all()
 
+        # Mark overdue invites as no_response and ensure Marketplace entries
+        ideas_listed: set[int] = set()
+        for a in dev_overdue:
+            # Update assignment status if still invited
+            a.status = "no_response"
+            if a.idea_id is not None:
+                ideas_listed.add(a.idea_id)
+
+        if dev_overdue:
+            # Create marketplace entries for affected ideas (idempotent via unique constraint)
+            for idea_id in ideas_listed:
+                existing = (await db.execute(select(MarketplaceEntry).where(MarketplaceEntry.idea_id == idea_id))).scalar_one_or_none()
+                if not existing:
+                    entry = MarketplaceEntry(idea_id=idea_id, listed_at=now)
+                    db.add(entry)
+
+            await db.commit()
+
         # Notify admins for each category (single summary email)
         admins = (await db.execute(select(User).where(User.role == UserRole.ADMIN))).scalars().all()
         if admins and (analyst_overdue or finance_overdue or dev_overdue):
@@ -51,4 +69,3 @@ class SLAService:
             "finance_overdue": len(finance_overdue),
             "developer_overdue": len(dev_overdue),
         }
-
