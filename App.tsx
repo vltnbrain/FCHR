@@ -30,6 +30,7 @@ import Dashboard from './components/dashboard/Dashboard';
 import IdeaSubmit from './components/ideas/IdeaSubmit';
 import Invitations from './components/assignments/Invitations';
 import Marketplace from './components/assignments/Marketplace';
+import IdeasAdmin from './components/ideas/IdeasAdmin';
 
 // Resolve Gemini API key from Vite env or process.env (dev/server)
 const API_KEY = (import.meta as any).env?.VITE_GEMINI_API_KEY ?? (typeof process !== 'undefined' ? (process.env as any)?.GEMINI_API_KEY : undefined);
@@ -49,6 +50,7 @@ function App() {
       {showAgentEdit && <AgentEdit />}
       <IdeaSubmit />
       <Invitations />
+      <IdeasAdmin />
       <Marketplace />
       <Dashboard />
 
