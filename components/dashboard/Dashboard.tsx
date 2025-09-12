@@ -25,6 +25,7 @@ export default function Dashboard() {
   const [data, setData] = useState<DashboardResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const endpoint = useMemo(() => {
     // Ensure single trailing slash behavior
@@ -46,7 +47,19 @@ export default function Dashboard() {
     return () => {
       cancelled = true;
     };
-  }, [endpoint]);
+  }, [endpoint, reloadKey]);
+
+  useEffect(() => {
+    const onCreated = () => setReloadKey((k) => k + 1);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('idea:created', onCreated as EventListener);
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('idea:created', onCreated as EventListener);
+      }
+    };
+  }, []);
 
   return (
     <section style={{ padding: '1rem', borderTop: '1px solid #eee' }}>
@@ -133,4 +146,3 @@ export default function Dashboard() {
     </section>
   );
 }
-
