@@ -3,7 +3,7 @@
   "metadata": {
     "projectName": "AI Hub of Ideas & Tasks",
     "createdAt": "2025-09-02T21:52:00Z",
-    "lastUpdated": "2025-09-03T13:00:00Z"
+    "lastUpdated": "2025-09-05T11:50:00Z"
   },
   "tags": {
     "master": {
@@ -12,12 +12,12 @@
           "id": 1,
           "title": "Project Foundation Setup",
           "description": "Set up monorepo structure with backend, frontend, infra, integrations, docs, and scripts directories. Configure package.json, environment variables, and basic project scaffolding.",
-          "status": "pending",
+          "status": "in_progress",
           "priority": "high",
           "details": "Create the complete project structure as outlined in the PRD. Set up Python FastAPI backend, React+TypeScript frontend, PostgreSQL with pgvector, Celery for job scheduling, and proper directory structure. Configure all required environment variables and dependencies.",
           "testStrategy": "Verify all directories exist, dependencies install correctly, and basic project structure matches PRD requirements.",
           "createdAt": "2025-09-03T13:00:00Z",
-          "updatedAt": "2025-09-03T13:00:00Z"
+          "updatedAt": "2025-09-05T11:50:00Z"
         },
         {
           "id": 2,
@@ -47,13 +47,13 @@
           "id": 4,
           "title": "Idea Ingestion API",
           "description": "Implement POST /ideas endpoint with auto-structuring, embedding generation, and duplicate detection using vector similarity search.",
-          "status": "pending",
+          "status": "in_progress",
           "priority": "high",
           "dependencies": [2, 3],
           "details": "Create idea ingestion API that accepts raw input, structures it automatically, generates embeddings, searches for duplicates, and stores similarity scores. Include user resolution and attachment.",
           "testStrategy": "Test idea creation, embedding generation, duplicate detection accuracy, and similarity scoring.",
           "createdAt": "2025-09-03T13:00:00Z",
-          "updatedAt": "2025-09-03T13:00:00Z"
+          "updatedAt": "2025-09-05T11:50:00Z"
         },
         {
           "id": 5,
@@ -95,13 +95,13 @@
           "id": 8,
           "title": "Public Dashboard Frontend",
           "description": "Create React dashboard showing ideas list, status tracking, and role-based actions for analyst/finance/developer/admin users.",
-          "status": "pending",
+          "status": "in_progress",
           "priority": "medium",
           "dependencies": [3],
           "details": "Build complete dashboard with idea listing, detail views, status tracking, audit trails, and role-based UI components. Include filtering and search functionality.",
           "testStrategy": "Verify dashboard displays correctly, role-based actions work, and all CRUD operations function properly.",
           "createdAt": "2025-09-03T13:00:00Z",
-          "updatedAt": "2025-09-03T13:00:00Z"
+          "updatedAt": "2025-09-05T11:50:00Z"
         },
         {
           "id": 9,

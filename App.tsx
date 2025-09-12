@@ -28,12 +28,9 @@ import { LiveAPIProvider } from './contexts/LiveAPIContext';
 import { useUI, useUser } from './lib/state';
 import Dashboard from './components/dashboard/Dashboard';
 
-const API_KEY = process.env.GEMINI_API_KEY as string;
-if (typeof API_KEY !== 'string') {
-  throw new Error(
-    'Missing required environment variable: REACT_APP_GEMINI_API_KEY'
-  );
-}
+// Resolve Gemini API key from Vite env or process.env (dev/server)
+const API_KEY = (import.meta as any).env?.VITE_GEMINI_API_KEY ?? (typeof process !== 'undefined' ? (process.env as any)?.GEMINI_API_KEY : undefined);
+const HAS_LIVE_API = Boolean(API_KEY);
 
 /**
  * Main application component that provides a streaming interface for Live API.
@@ -43,23 +40,36 @@ function App() {
   const { showUserConfig, showAgentEdit } = useUI();
   return (
     <div className="App">
-      <LiveAPIProvider apiKey={API_KEY}>
-        <ErrorScreen />
-        <Header />
+      <Header />
 
-        {showUserConfig && <UserSettings />}
-        {showAgentEdit && <AgentEdit />}
-        <Dashboard />
+      {showUserConfig && <UserSettings />}
+      {showAgentEdit && <AgentEdit />}
+      <Dashboard />
+
+      {HAS_LIVE_API ? (
+        <LiveAPIProvider apiKey={API_KEY as string}>
+          <ErrorScreen />
+          <div className="streaming-console">
+            <main>
+              <div className="main-app-area">
+                <KeynoteCompanion />
+              </div>
+
+              <ControlTray></ControlTray>
+            </main>
+          </div>
+        </LiveAPIProvider>
+      ) : (
         <div className="streaming-console">
           <main>
             <div className="main-app-area">
-              <KeynoteCompanion />
+              <div style={{ padding: '1rem', color: '#666' }}>
+                Live features disabled. Set VITE_GEMINI_API_KEY to enable streaming console.
+              </div>
             </div>
-
-            <ControlTray></ControlTray>
           </main>
         </div>
-      </LiveAPIProvider>
+      )}
     </div>
   );
 }

@@ -28,12 +28,13 @@ RUN useradd --create-home --shell /bin/bash app \
     && chown -R app:app /app
 USER app
 
-# Expose port
-EXPOSE 8000
+# Expose Cloud Run port (default 8080)
+ENV PORT=8080
+EXPOSE 8080
 
-# Health check
+# Health check (Cloud Run ignores container healthchecks, but kept for local runs)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+    CMD curl -f http://localhost:8080/health || exit 1
 
-# Default command
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+# Default command — bind to Cloud Run's PORT and use dedicated entrypoint module
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}"]

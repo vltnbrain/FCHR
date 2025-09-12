@@ -317,6 +317,26 @@ console.log(response);
 - **API**: Load balancer with rate limiting
 - **Storage**: External file storage for attachments
 
+### Supabase Setup (Postgres)
+
+You can use Supabase as the managed Postgres for AI Hub:
+
+1. In Supabase dashboard, copy the database connection string (user, password, host, db `postgres`).
+2. Set in your `.env`:
+
+```
+DATABASE_URI=postgresql://USER:PASSWORD@YOUR-PROJECT-HOST.supabase.co:5432/postgres
+DB_SSL=True
+```
+
+3. The app will attempt to enable the `vector` extension on startup. Alternatively, run:
+
+```
+CREATE EXTENSION IF NOT EXISTS vector;
+```
+
+4. For Cloud Run deployments, use the template `ai-hub/infra/cloudrun.env.supabase.example.yaml` and pass it with `--env-vars-file`.
+
 ## 🧪 Testing
 
 ### Test Categories

@@ -7,11 +7,21 @@ from typing import AsyncGenerator
 
 from app.core.config import settings
 
+# Build database URL for asyncpg
+db_url = settings.SQLALCHEMY_DATABASE_URI.replace("postgresql://", "postgresql+asyncpg://")
+
+# Connect args (e.g., SSL for Supabase)
+connect_args = {}
+if settings.DB_SSL:
+    # For asyncpg, passing ssl=True enables TLS using default SSL context
+    connect_args["ssl"] = True
+
 # Create async engine
 engine = create_async_engine(
-    settings.SQLALCHEMY_DATABASE_URI.replace("postgresql://", "postgresql+asyncpg://"),
+    db_url,
     echo=False,  # Set to True for SQL query logging
     future=True,
+    connect_args=connect_args,
 )
 
 # Create async session factory

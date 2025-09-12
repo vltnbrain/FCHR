@@ -46,6 +46,9 @@ class Settings(BaseSettings):
     POSTGRES_DB: str = "aihub"
     POSTGRES_PORT: int = 5432
     DATABASE_URI: Optional[str] = None
+    # Optional SSL requirements (useful for Supabase and managed Postgres)
+    DB_SSL: Optional[bool] = None  # set to True to force SSL
+    DB_SSL_MODE: Optional[str] = None  # e.g., 'require'
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
@@ -100,6 +103,11 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: Optional[str] = None
     OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-small"
     OPENAI_ORGANIZATION: Optional[str] = None
+
+    # Supabase (optional)
+    SUPABASE_URL: Optional[str] = None
+    SUPABASE_ANON_KEY: Optional[str] = None
+    SUPABASE_SERVICE_ROLE_KEY: Optional[str] = None
 
     # Security Configuration
     SECURITY_BCRYPT_ROUNDS: int = 12

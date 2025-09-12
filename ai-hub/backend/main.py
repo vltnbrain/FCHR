@@ -1,7 +1,12 @@
 """
-AI Hub of Ideas & Tasks - Main FastAPI Application
+AI Hub of Ideas & Tasks - Cloud Run entrypoint
+
+This module creates the FastAPI application using the package `app`.
+It avoids the naming collision with the `app` package when importing as a module.
 """
 from contextlib import asynccontextmanager
+import os
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -14,9 +19,11 @@ from app.core.logging import setup_logging
 from app.db.session import engine
 from app.db.base import Base
 
+
 # Setup structured logging
 setup_logging()
 logger = structlog.get_logger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -43,6 +50,7 @@ async def lifespan(app: FastAPI):
 
     logger.info("Shutting down AI Hub application")
 
+
 # Create FastAPI application
 app = FastAPI(
     title="AI Hub of Ideas & Tasks",
@@ -54,6 +62,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+
 # Set up CORS
 if settings.BACKEND_CORS_ORIGINS:
     app.add_middleware(
@@ -64,13 +73,16 @@ if settings.BACKEND_CORS_ORIGINS:
         allow_headers=["*"],
     )
 
+
 # Include API routers
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
 
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
     return {"status": "healthy", "service": "ai-hub"}
+
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
@@ -81,12 +93,15 @@ async def global_exception_handler(request: Request, exc: Exception):
         content={"detail": "Internal server error"},
     )
 
+
 if __name__ == "__main__":
     import uvicorn
+
+    port = int(os.getenv("PORT", "8080"))
     uvicorn.run(
-        "app:app",
+        "main:app",
         host="0.0.0.0",
-        port=8000,
-        reload=True,
+        port=port,
+        reload=False,
         log_config=None,  # Use our custom logging
     )
