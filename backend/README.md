@@ -45,3 +45,9 @@ Assignments
 Security & Audit
 - Rate limiting per IP+path (env: RATE_LIMIT_PER_MINUTE, default 120)
 - Audit events записываются для ключевых операций (ideas, reviews, assignments) в events_audit
+
+Voice Assistant (FCHR)
+- Auth: pass X-VOICE-API-KEY header (configure VOICE_API_KEY in .env)
+- POST /voice/identify — входная идентификация пользователя (email/phone/external_id)
+- POST /voice/create-idea — создание идеи (поддерживает aw автосборку)
+- POST /voice/get-status — статус идеи (по idea_id или последняя для пользователя)

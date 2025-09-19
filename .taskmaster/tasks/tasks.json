@@ -107,13 +107,13 @@
           "id": 9,
           "title": "FCHR Voice Assistant Integration",
           "description": "Create adapter for FCHR voice bot integration, update idea-handling-guide.md, and implement conversation flows for idea capture and status updates.",
-          "status": "pending",
+          "status": "completed",
           "priority": "medium",
           "dependencies": [4],
           "details": "Build voice bot adapter, update documentation, implement user identification, conversation flows, and API integration for idea submission and status queries.",
           "testStrategy": "Test voice bot integration, user identification, idea capture, and status retrieval functionality.",
           "createdAt": "2025-09-03T13:00:00Z",
-          "updatedAt": "2025-09-03T13:00:00Z"
+          "updatedAt": "2025-09-19T17:30:00Z"
         },
         {
           "id": 10,

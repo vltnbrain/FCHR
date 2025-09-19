@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .core.config import settings
 from .core.rate_limit import RateLimitMiddleware
 from .core.security_headers import SecurityHeadersMiddleware
-from .api import ideas, auth, users, emails, reviews, assignments, audit
+from .api import ideas, auth, users, emails, reviews, assignments, audit, voice
 from .db.base import Base
 from .db.session import engine
 from .db.session import SessionLocal
@@ -129,6 +129,7 @@ def create_app() -> FastAPI:
     app.include_router(reviews.router, prefix="/reviews", tags=["reviews"])
     app.include_router(assignments.router, prefix="/assignments", tags=["assignments"])
     app.include_router(audit.router, prefix="/events", tags=["audit"]) 
+    app.include_router(voice.router, prefix="/voice", tags=["voice"]) 
 
     return app
 
