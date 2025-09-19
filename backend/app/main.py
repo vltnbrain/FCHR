@@ -16,6 +16,7 @@ from .services import sla as sla_services
 from sqlalchemy import text
 import threading
 import time
+from prometheus_fastapi_instrumentator import Instrumentator
 
 
 def create_app() -> FastAPI:
@@ -38,6 +39,12 @@ def create_app() -> FastAPI:
         import os as _os
         limit = int(_os.getenv("RATE_LIMIT_PER_MINUTE", "120") or 120)
         app.add_middleware(RateLimitMiddleware, limit_per_minute=limit)
+    except Exception:
+        pass
+
+    # Prometheus metrics exposure
+    try:
+        Instrumentator().instrument(app).expose(app, include_in_schema=False, endpoint="/metrics")
     except Exception:
         pass
 

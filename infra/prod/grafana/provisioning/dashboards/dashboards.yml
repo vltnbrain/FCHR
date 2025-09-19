@@ -9,4 +9,6 @@ providers:
     updateIntervalSeconds: 30
     options:
       path: /etc/grafana/provisioning/dashboards
-
+    dashboards:
+      - file: /etc/grafana/provisioning/dashboards/node-overview.json
+      - file: /etc/grafana/provisioning/dashboards/backend-overview.json
