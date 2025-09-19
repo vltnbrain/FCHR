@@ -71,3 +71,20 @@ CREATE TABLE IF NOT EXISTS embeddings (
   vector vector(1536),
   created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+-- Voice usage for quotas
+CREATE TABLE IF NOT EXISTS voice_usage (
+  id SERIAL PRIMARY KEY,
+  api_key VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+-- Voice sessions for dialog tracing/state
+CREATE TABLE IF NOT EXISTS voice_sessions (
+  id SERIAL PRIMARY KEY,
+  api_key VARCHAR(255) NOT NULL,
+  user_email VARCHAR(255),
+  context JSONB,
+  last_response TEXT,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);

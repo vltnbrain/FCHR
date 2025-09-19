@@ -107,3 +107,20 @@ class Embedding(Base):
     except Exception:  # pragma: no cover
         vector = Column(types.JSON)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class VoiceUsage(Base):
+    __tablename__ = "voice_usage"
+    id = Column(Integer, primary_key=True)
+    api_key = Column(String(255), nullable=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+
+class VoiceSession(Base):
+    __tablename__ = "voice_sessions"
+    id = Column(Integer, primary_key=True)
+    api_key = Column(String(255), nullable=False)
+    user_email = Column(String(255), nullable=True)
+    context = Column(types.JSON)
+    last_response = Column(Text)
+    created_at = Column(DateTime, default=datetime.utcnow)
