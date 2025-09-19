@@ -75,10 +75,9 @@ services:
 
   node-exporter:
     image: prom/node-exporter:latest
-    pid: host
-    network_mode: host
-    command:
-      - '--path.rootfs=/host'
+    command: ['--path.rootfs=/host']
+    ports:
+      - '9100:9100'
     volumes:
       - '/:/host:ro,rslave'
 
@@ -98,6 +97,32 @@ services:
       - ./promtail-config.yml:/etc/promtail/config.yml:ro
     command: -config.file=/etc/promtail/config.yml
 
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prom-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=24h'
+
+  grafana:
+    image: grafana/grafana:10.4.9
+    depends_on:
+      - loki
+      - prometheus
+    ports:
+      - '3000:3000'
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+
 volumes:
   db_data:
   build_dist:
@@ -105,3 +130,5 @@ volumes:
   certbot-var:
   uptime-data:
   loki-data:
+  prom-data:
+  grafana-data:

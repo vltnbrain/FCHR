@@ -31,6 +31,12 @@ Monitoring
 - Uptime Kuma: `http://<host>:3001` (configure monitors for backend and nginx)
 - Node Exporter: exposes metrics on host for Prometheus
 - Logs: Loki on `:3100`, Promtail ships container logs; connect Grafana or external Loki UI
+ - Prometheus: `http://<host>:9090` (scrapes node-exporter)
+ - Grafana: `http://<host>:3000` (admin/admin). Provisioned datasources for Prometheus+Loki and basic Node dashboard. Prefer SSH port-forwarding.
+
+Manual Deploy Helpers
+- Linux: `scripts/deploy.sh` (set REPO_DIR if needed)
+- Windows: `scripts/deploy.ps1 -RepoDir <path>`
 
 Getting Started
 - Copy `.env.example` to `.env` and adjust values
