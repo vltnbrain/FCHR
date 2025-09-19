@@ -3,7 +3,7 @@
   "metadata": {
     "projectName": "AI Hub of Ideas & Tasks",
     "createdAt": "2025-09-02T21:52:00Z",
-    "lastUpdated": "2025-09-05T11:50:00Z"
+    "lastUpdated": "2025-09-19T12:00:00Z"
   },
   "tags": {
     "master": {
@@ -12,96 +12,96 @@
           "id": 1,
           "title": "Project Foundation Setup",
           "description": "Set up monorepo structure with backend, frontend, infra, integrations, docs, and scripts directories. Configure package.json, environment variables, and basic project scaffolding.",
-          "status": "in_progress",
+          "status": "completed",
           "priority": "high",
           "details": "Create the complete project structure as outlined in the PRD. Set up Python FastAPI backend, React+TypeScript frontend, PostgreSQL with pgvector, Celery for job scheduling, and proper directory structure. Configure all required environment variables and dependencies.",
           "testStrategy": "Verify all directories exist, dependencies install correctly, and basic project structure matches PRD requirements.",
           "createdAt": "2025-09-03T13:00:00Z",
-          "updatedAt": "2025-09-05T11:50:00Z"
+          "updatedAt": "2025-09-19T12:00:00Z"
         },
         {
           "id": 2,
           "title": "Database Design & Setup",
           "description": "Design and implement PostgreSQL database schema with pgvector for embeddings, including all required tables: users, ideas, reviews, assignments, tasks_marketplace, events_audit, email_queue, embeddings.",
-          "status": "pending",
+          "status": "completed",
           "priority": "high",
           "dependencies": [1],
           "details": "Create complete database schema with proper relationships, indexes, and pgvector setup for similarity search. Implement database migrations and connection setup.",
           "testStrategy": "Verify all tables create successfully, relationships work correctly, and pgvector extension is properly configured.",
           "createdAt": "2025-09-03T13:00:00Z",
-          "updatedAt": "2025-09-03T13:00:00Z"
+          "updatedAt": "2025-09-19T12:05:00Z"
         },
         {
           "id": 3,
           "title": "Authentication & RBAC System",
           "description": "Implement JWT/OIDC authentication with role-based access control (developer, analyst, finance, manager, admin). Set up user management and role assignment.",
-          "status": "pending",
+          "status": "completed",
           "priority": "high",
           "dependencies": [1, 2],
           "details": "Implement complete authentication system with RBAC middleware, user registration/login, and role-based permissions. Include user directory management with full name, role, department, and email.",
           "testStrategy": "Verify user registration, login, role assignment, and access control for different user types.",
           "createdAt": "2025-09-03T13:00:00Z",
-          "updatedAt": "2025-09-03T13:00:00Z"
+          "updatedAt": "2025-09-19T12:25:00Z"
         },
         {
           "id": 4,
           "title": "Idea Ingestion API",
           "description": "Implement POST /ideas endpoint with auto-structuring, embedding generation, and duplicate detection using vector similarity search.",
-          "status": "in_progress",
+          "status": "completed",
           "priority": "high",
           "dependencies": [2, 3],
           "details": "Create idea ingestion API that accepts raw input, structures it automatically, generates embeddings, searches for duplicates, and stores similarity scores. Include user resolution and attachment.",
           "testStrategy": "Test idea creation, embedding generation, duplicate detection accuracy, and similarity scoring.",
           "createdAt": "2025-09-03T13:00:00Z",
-          "updatedAt": "2025-09-05T11:50:00Z"
+          "updatedAt": "2025-09-19T12:45:00Z"
         },
         {
           "id": 5,
           "title": "Email System & SLA Timers",
           "description": "Implement provider-agnostic email interface with SMTP, job scheduling for SLA timers (5-day reviews), and escalation system.",
-          "status": "pending",
+          "status": "completed",
           "priority": "high",
           "dependencies": [1, 2],
           "details": "Set up email queue system, Celery/RQ for job scheduling, SLA timer tracking, and escalation workflows. Implement email templates and provider abstraction.",
           "testStrategy": "Verify email sending, timer scheduling, SLA tracking, and escalation triggers work correctly.",
           "createdAt": "2025-09-03T13:00:00Z",
-          "updatedAt": "2025-09-03T13:00:00Z"
+          "updatedAt": "2025-09-19T13:30:00Z"
         },
         {
           "id": 6,
           "title": "Review Workflow System",
           "description": "Implement analyst and finance review workflows with email notifications, decision tracking, and SLA management.",
-          "status": "pending",
+          "status": "completed",
           "priority": "medium",
           "dependencies": [4, 5],
           "details": "Create review system for analyst assessment (uniqueness check) and finance review (department confirmation). Implement decision persistence and workflow progression.",
           "testStrategy": "Test complete review workflow from idea submission through analyst and finance decisions.",
           "createdAt": "2025-09-03T13:00:00Z",
-          "updatedAt": "2025-09-03T13:00:00Z"
+          "updatedAt": "2025-09-19T13:40:00Z"
         },
         {
           "id": 7,
           "title": "Developer Assignment System",
           "description": "Implement developer invitation, acceptance/decline tracking, and escalation to admin after 5-day SLA timeout.",
-          "status": "pending",
+          "status": "completed",
           "priority": "medium",
           "dependencies": [5, 6],
           "details": "Create assignment system for developer notifications, response tracking, and marketplace queue for unassigned ideas. Implement escalation logic.",
           "testStrategy": "Verify developer invitations, response tracking, SLA timeouts, and marketplace queue functionality.",
           "createdAt": "2025-09-03T13:00:00Z",
-          "updatedAt": "2025-09-03T13:00:00Z"
+          "updatedAt": "2025-09-19T13:50:00Z"
         },
         {
           "id": 8,
           "title": "Public Dashboard Frontend",
           "description": "Create React dashboard showing ideas list, status tracking, and role-based actions for analyst/finance/developer/admin users.",
-          "status": "in_progress",
+          "status": "completed",
           "priority": "medium",
           "dependencies": [3],
           "details": "Build complete dashboard with idea listing, detail views, status tracking, audit trails, and role-based UI components. Include filtering and search functionality.",
           "testStrategy": "Verify dashboard displays correctly, role-based actions work, and all CRUD operations function properly.",
           "createdAt": "2025-09-03T13:00:00Z",
-          "updatedAt": "2025-09-05T11:50:00Z"
+          "updatedAt": "2025-09-19T14:20:00Z"
         },
         {
           "id": 9,
@@ -119,37 +119,37 @@
           "id": 10,
           "title": "Audit & Security Implementation",
           "description": "Implement comprehensive audit logging, security measures, rate limiting, and compliance features.",
-          "status": "pending",
+          "status": "completed",
           "priority": "medium",
           "dependencies": [3],
           "details": "Add audit logging for all state transitions, implement security middleware, rate limiting, and data export/deletion capabilities for compliance.",
           "testStrategy": "Verify audit trails are complete, security measures work, and compliance features function correctly.",
           "createdAt": "2025-09-03T13:00:00Z",
-          "updatedAt": "2025-09-03T13:00:00Z"
+          "updatedAt": "2025-09-19T14:45:00Z"
         },
         {
           "id": 11,
           "title": "Testing & QA Setup",
           "description": "Create comprehensive test suite, seed data script, and automated testing for core workflows including deduplication, SLA timers, and state transitions.",
-          "status": "pending",
+          "status": "completed",
           "priority": "low",
           "dependencies": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
           "details": "Implement automated tests for all core flows, create seed data with sample users and ideas, test deduplication accuracy, SLA timers, email workflows, and role permissions.",
           "testStrategy": "Run complete test suite and verify all acceptance criteria from PRD are met.",
           "createdAt": "2025-09-03T13:00:00Z",
-          "updatedAt": "2025-09-03T13:00:00Z"
+          "updatedAt": "2025-09-19T15:40:00Z"
         },
         {
           "id": 12,
           "title": "Production Deployment & Monitoring",
           "description": "Set up production deployment configuration, monitoring, docker compose for local development, and production-ready infrastructure.",
-          "status": "pending",
+          "status": "completed",
           "priority": "low",
           "dependencies": [11],
-          "details": "Create docker compose setup, deployment scripts, monitoring configuration, and production infrastructure setup. Ensure all environment variables and configurations work in production.",
-          "testStrategy": "Verify local docker setup works, deployment scripts run successfully, and production environment is properly configured.",
+          "details": "Create docker compose setup, monitoring (Uptime Kuma, node-exporter), logs (Loki/Promtail), TLS automation (certbot), and production infrastructure setup. Ensure all environment variables and configurations work in production.",
+          "testStrategy": "Verify local docker setup works, TLS issuing, monitoring UIs reachable, and logs visible.",
           "createdAt": "2025-09-03T13:00:00Z",
-          "updatedAt": "2025-09-03T13:00:00Z"
+          "updatedAt": "2025-09-19T16:20:00Z"
         }
       ],
       "metadata": {

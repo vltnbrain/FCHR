@@ -1,0 +1,41 @@
+version: "3.9"
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: aihub
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/00_init.sql:ro
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    env_file:
+      - ../.env
+    environment:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/aihub
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:8000
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
+
