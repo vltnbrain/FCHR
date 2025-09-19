@@ -26,26 +26,20 @@ def review_sla_pass(db: Session, *, days: int = 5) -> int:
 
 def assignment_sla_pass(db: Session, *, days: int = 5) -> int:
     from ..crud import assignments as asg_crud
-    count = 0
-    rows = list(
-        db.execute(
-            text(
-                """
-                SELECT id FROM assignments
-                WHERE status='invited' AND created_at < NOW() - (:days || ' days')::interval
-                """
-            ),
-            {"days": days},
-        ).scalars()
-    )
+    from ..db import models
+    from datetime import datetime, timedelta
+    cutoff = datetime.utcnow() - timedelta(days=days)
+    # Generic query across DBs
+    overdue = db.query(models.Assignment).filter(models.Assignment.status == 'invited', models.Assignment.created_at < cutoff).all()
     from ..services.email import render_template
     admins = db.execute(text("SELECT email FROM users WHERE role='admin' LIMIT 5")).all()
     admin_emails = [row[0] for row in admins] or ["admin@example.com"]
-    for aid in rows:
-        if events_crud.has_event(db, entity="assignment", entity_id=aid, event="sla_escalated"):
+    count = 0
+    for a in overdue:
+        if events_crud.has_event(db, entity="assignment", entity_id=a.id, event="sla_escalated"):
             continue
         try:
-            row = asg_crud.escalate(db, assignment_id=aid)
+            row = asg_crud.escalate(db, assignment_id=a.id)
         except Exception:
             continue
         subj, body = render_template("assignment.escalated", assignment_id=row.id, idea_id=row.idea_id)
@@ -54,4 +48,3 @@ def assignment_sla_pass(db: Session, *, days: int = 5) -> int:
         events_crud.record_event(db, entity="assignment", entity_id=row.id, event="sla_escalated", payload={"idea_id": row.idea_id})
         count += 1
     return count
-
