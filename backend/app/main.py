@@ -1,10 +1,15 @@
 import os
+import importlib.util
+from pathlib import Path
+
+if __spec__ is None:
+    __spec__ = importlib.util.spec_from_file_location('app.main', Path(__file__).resolve())
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .core.config import settings
+from .core.config import get_settings
 from .core.rate_limit import RateLimitMiddleware
 from .core.security_headers import SecurityHeadersMiddleware
-from .api import ideas, auth, users, emails, reviews, assignments, audit, voice
+from .api import ideas, auth, users, emails, reviews, assignments, audit, voice, projects
 from .db.base import Base
 from .db.session import engine
 from .db.session import SessionLocal
@@ -20,6 +25,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 
 
 def create_app() -> FastAPI:
+    settings = get_settings()
     app = FastAPI(title="AI Hub of Ideas & Tasks", version="0.1.0")
 
     # CORS
@@ -130,6 +136,7 @@ def create_app() -> FastAPI:
     app.include_router(assignments.router, prefix="/assignments", tags=["assignments"])
     app.include_router(audit.router, prefix="/events", tags=["audit"]) 
     app.include_router(voice.router, prefix="/voice", tags=["voice"]) 
+    app.include_router(projects.router, prefix="/projects", tags=["projects"])
 
     return app
 
@@ -144,3 +151,4 @@ if __name__ == "__main__":
         port=int(os.getenv("BACKEND_PORT", "8000")),
         reload=True,
     )
+

@@ -1,13 +1,25 @@
-from passlib.context import CryptContext
+import hashlib
+import bcrypt
+
+_MAX_BCRYPT_LENGTH = 72
 
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+def _normalize_password(password: str) -> bytes:
+    data = password.encode("utf-8")
+    if len(data) > _MAX_BCRYPT_LENGTH:
+        # bcrypt only uses first 72 bytes; pre-hash to preserve entropy for long secrets
+        return hashlib.sha256(data).digest()
+    return data
 
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    candidate = _normalize_password(password)
+    return bcrypt.hashpw(candidate, bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(password: str, password_hash: str) -> bool:
-    return pwd_context.verify(password, password_hash)
-
+    candidate = _normalize_password(password)
+    try:
+        return bcrypt.checkpw(candidate, password_hash.encode("utf-8"))
+    except ValueError:
+        return False

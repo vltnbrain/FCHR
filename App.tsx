@@ -25,17 +25,24 @@ import KeynoteCompanion from './components/demo/keynote-companion/KeynoteCompani
 import Header from './components/Header';
 import UserSettings from './components/UserSettings';
 import { LiveAPIProvider } from './contexts/LiveAPIContext';
-import { useUI, useUser } from './lib/state';
+import { useUI } from './lib/state';
 import Dashboard from './components/dashboard/Dashboard';
 import IdeaSubmit from './components/ideas/IdeaSubmit';
 import Invitations from './components/assignments/Invitations';
 import Marketplace from './components/assignments/Marketplace';
 import IdeasAdmin from './components/ideas/IdeasAdmin';
 
-// Resolve Gemini API key from Vite env or process.env (dev/server)
-const API_KEY = (import.meta as any).env?.VITE_GEMINI_API_KEY ?? (typeof process !== 'undefined' ? (process.env as any)?.GEMINI_API_KEY : undefined);
-const HAS_LIVE_API = Boolean(API_KEY);
-
+// Resolve Gemini/Live API key from Vite env or process.env (dev/server)
+const LIVE_API_KEY =
+  (import.meta as any).env?.VITE_GOOGLE_LIVE_API_KEY ??
+  (import.meta as any).env?.VITE_GEMINI_API_KEY ??
+  (typeof process !== 'undefined'
+    ? (process.env as any)?.VITE_GOOGLE_LIVE_API_KEY ??
+      (process.env as any)?.VITE_GEMINI_API_KEY ??
+      (process.env as any)?.GOOGLE_LIVE_API_KEY ??
+      (process.env as any)?.GEMINI_API_KEY
+    : undefined);
+const HAS_LIVE_API = Boolean(LIVE_API_KEY);
 /**
  * Main application component that provides a streaming interface for Live API.
  * Manages video streaming state and provides controls for webcam/screen capture.
@@ -55,7 +62,7 @@ function App() {
       <Dashboard />
 
       {HAS_LIVE_API ? (
-        <LiveAPIProvider apiKey={API_KEY as string}>
+        <LiveAPIProvider apiKey={LIVE_API_KEY as string}>
           <ErrorScreen />
           <div className="streaming-console">
             <main>
@@ -72,7 +79,7 @@ function App() {
           <main>
             <div className="main-app-area">
               <div style={{ padding: '1rem', color: '#666' }}>
-                Live features disabled. Set VITE_GEMINI_API_KEY to enable streaming console.
+                Live features disabled. Set VITE_GOOGLE_LIVE_API_KEY (or VITE_GEMINI_API_KEY) to enable streaming console.
               </div>
             </div>
           </main>

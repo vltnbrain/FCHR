@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, field_validator
@@ -39,12 +40,14 @@ class Idea(BaseModel):
     description: str
     author_email: Optional[str] = None
     status: Optional[str] = None
+    created_at: Optional[datetime] = None
+    created_at: Optional[datetime] = None
 
 
 @router.get("/", response_model=List[Idea])
 def list_ideas(db: Session = Depends(get_db)) -> List[Idea]:
     rows = ideas_crud.list_ideas(db)
-    return [Idea(id=r.id, title=r.title, description=r.description, author_email=r.author_email, status=getattr(r, 'status', None)) for r in rows]
+    return [Idea(id=r.id, title=r.title, description=r.description, author_email=r.author_email, status=getattr(r, 'status', None), created_at=getattr(r, 'created_at', None)) for r in rows]
 
 
 class DuplicateCandidate(BaseModel):
@@ -87,7 +90,7 @@ def create_idea(payload: IdeaCreate, db: Session = Depends(get_db), user = Depen
         author_email=payload.author_email,
         created_by_id=user.id,
     )
-    idea = Idea(id=row.id, title=row.title, description=row.description, author_email=row.author_email, status=getattr(row, 'status', None))
+    idea = Idea(id=row.id, title=row.title, description=row.description, author_email=row.author_email, status=getattr(row, 'status', None), created_at=getattr(row, 'created_at', None))
 
     try:
         emb_crud.add_embedding(db, idea_id=row.id, vector=vec)
@@ -103,3 +106,9 @@ def create_idea(payload: IdeaCreate, db: Session = Depends(get_db), user = Depen
         idea=idea,
         possible_duplicates=[DuplicateCandidate(**d) for d in dupes],
     )
+
+
+@router.get("/mine", response_model=List[Idea])
+def list_my_ideas(user = Depends(get_current_user), db: Session = Depends(get_db)) -> List[Idea]:
+    rows = ideas_crud.list_ideas_for_user(db, user_id=user.id)
+    return [Idea(id=r.id, title=r.title, description=r.description, author_email=r.author_email, status=getattr(r, 'status', None), created_at=getattr(r, 'created_at', None)) for r in rows]

@@ -4,6 +4,7 @@ Development
 - Frontend lives in the repo root (Vite + React), backend in `ai-hub/backend`.
 - Prefer small, focused PRs with clear descriptions.
 - Keep changes consistent with existing code style; avoid unrelated refactors.
+- Always add stable `data-testid="..."` attributes to interactive or stateful UI elements to keep the Playwright suite reliable.
 
 Backend
 - Python 3.11+, FastAPI + SQLAlchemy 2.x.
@@ -23,4 +24,3 @@ Commit Messages
 
 Code of Conduct
 - Be respectful and constructive in issues and PRs.
-

@@ -36,3 +36,9 @@ def set_idea_status(db: Session, *, idea_id: int, status: str) -> models.Idea:
     db.commit()
     db.refresh(row)
     return row
+
+
+
+def list_ideas_for_user(db: Session, *, user_id: int) -> list[models.Idea]:
+    stmt = select(models.Idea).where(models.Idea.created_by_id == user_id).order_by(models.Idea.created_at.desc())
+    return list(db.execute(stmt).scalars().all())

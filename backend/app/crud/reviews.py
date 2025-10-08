@@ -51,3 +51,21 @@ def overdue_reviews(db: Session, *, older_than_days: int = 5) -> list[models.Rev
         ).scalars()
     )
 
+
+
+def list_pending_for_stage(db: Session, *, stage: str, reviewer_id: int | None = None) -> list[models.Review]:
+    stmt = select(models.Review).where(models.Review.stage == stage, models.Review.decision.is_(None))
+    if reviewer_id is not None:
+        stmt = stmt.where(models.Review.reviewer_id == reviewer_id)
+    stmt = stmt.order_by(models.Review.created_at.asc())
+    return list(db.execute(stmt).scalars())
+
+
+def list_recent_reviews_for_user(db: Session, *, reviewer_id: int, limit: int = 10) -> list[models.Review]:
+    stmt = (
+        select(models.Review)
+        .where(models.Review.reviewer_id == reviewer_id)
+        .order_by(models.Review.created_at.desc())
+        .limit(limit)
+    )
+    return list(db.execute(stmt).scalars())

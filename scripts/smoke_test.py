@@ -1,4 +1,13 @@
-import os, json
+import json
+import os
+import sys
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).resolve().parents[1]
+BACKEND_DIR = ROOT_DIR / "backend"
+if str(BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(BACKEND_DIR))
+
 os.environ.setdefault('DATABASE_URL', 'sqlite+pysqlite:///:memory:')
 os.environ.setdefault('USE_PGVECTOR', '0')
 os.environ.setdefault('EMAIL_PROVIDER', 'mock')
